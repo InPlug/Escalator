@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Parameters Transport="File">
+  <SubWorkers type="array">
+    <SubWorker RunCounter="1">
+      <PhysicalPath>D:\NetEti\private4\WPF\Eti\Vishnu\Vishnu\bin\Debug\Plugin\ConsoleMessageBox.exe</PhysicalPath>
+      <Parameters>
+                	Stufe 1 (Run 1) 17.04.2016 13.30.03: MAUSBAER4 Exception von DialogChecker in Check Escalator|Logical: null Test-Exception|Fehler
+                </Parameters>
+    </SubWorker>
+    <SubWorker RunCounter="3">
+      <PhysicalPath>D:\NetEti\private4\WPF\Eti\Vishnu\Vishnu\bin\Debug\Plugin\ConsoleMessageBox.exe</PhysicalPath>
+      <Parameters>
+                	Stufe 2 (Run 3) 17.04.2016 13.30.03: MAUSBAER4 Exception von DialogChecker in Check Escalator|Logical: null Test-Exception|Fehler
+                </Parameters>
+    </SubWorker>
+  </SubWorkers>
+</Parameters>
