@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Xml.Linq;
@@ -18,7 +16,8 @@ namespace Escalator
     /// File: Program.cs
     /// Autor: Erik Nagel
     ///
-    /// 16.04.2016 Erik Nagel: erstellt
+    /// 16.04.2016 Erik Nagel: Erstellt.
+    /// 03.07.2021 Erik Nagel: Parameter "#quiet#" implementiert.
     /// </remarks>
     public class Program
     {
@@ -75,7 +74,10 @@ namespace Escalator
                 if (aufrufCounter < 0 && Math.Abs(aufrufCounter) >= runCounter || runCounter == aufrufCounter)
                 {
                     string subWorkerPath = subWorker.Element("PhysicalPath").Value;
-                    exec(subWorkerPath, aufrufCounter, treeInfo, nodeId, subWorkerParaString, transportByFile, parameterFile);
+                    if (subWorkerPath != null && subWorkerPath.ToLower() != "#quiet#")
+                    {
+                        exec(subWorkerPath, aufrufCounter, treeInfo, nodeId, subWorkerParaString, transportByFile, parameterFile);
+                    }
                 }
             }
         }
