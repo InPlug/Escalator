@@ -127,11 +127,11 @@ namespace Escalator
         {
             if (aufrufCounter < 0)
             {
-                return "Das Problem ist behoben. Die ursprüngliche Meldung war:";
+                return "Die frühere Meldung trifft nicht mehr zu. Die ursprüngliche Meldung war:";
             }
             else
             {
-                return aufrufCounter.ToString() + ". Warnung";
+                return aufrufCounter.ToString() + ". Achtung";
             }
         }
 
