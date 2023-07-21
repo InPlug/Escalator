@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Escalator": {
+      "commandName": "Project",
+      "commandLineArgs": "1 Blabluff blubber \"Testfiles/Check Escalator_Exception_0.para\""
+    }
+  }
+}

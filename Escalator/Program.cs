@@ -1,15 +1,11 @@
-ï»¿using System;
-using System.Linq;
-using System.Windows.Forms;
-using System.IO;
-using System.Xml.Linq;
 using System.Diagnostics;
+using System.Xml.Linq;
 
 namespace Escalator
 {
     /// <summary>
     /// Ruft weitere Worker (Exen) mit Kommandozeilen-Parametern auf.
-    /// BerÃ¼cksichtigt je nach Aufruf-ZÃ¤hler unterschiedliche Worker
+    /// Berücksichtigt je nach Aufruf-Zähler unterschiedliche Worker
     /// (Eskalationsstufen), z.B. ConsoleMessageBox, MicroMailer, ...
     /// </summary>
     /// <remarks>
@@ -19,8 +15,12 @@ namespace Escalator
     /// 16.04.2016 Erik Nagel: Erstellt.
     /// 03.07.2021 Erik Nagel: Parameter "#quiet#" implementiert.
     /// </remarks>
-    public class Program
+    internal static class Program
     {
+        /// <summary>
+        ///  The main entry point for the application.
+        /// </summary>
+        [STAThread]
         static void Main(string[] args)
         {
             Application.EnableVisualStyles();
@@ -29,7 +29,7 @@ namespace Escalator
             string treeInfo = args[1];
             string nodeId = args[2];
             args = args.Skip(3).ToArray();
-            bool paraByFile = true; // hier immer , aus dokumentatorischen GrÃ¼nden werden beide Zweige gezeigt.
+            bool paraByFile = true; // hier immer , aus dokumentatorischen Gründen werden beide Zweige gezeigt.
             if (!paraByFile)
             {
                 showMessageFromArgs(aufrufCounter, treeInfo, nodeId, args); // hier nie
@@ -45,14 +45,14 @@ namespace Escalator
             string aufrufInfo = buildAufrufInfo(aufrufCounter);
             string msg = aufrufInfo;
             string delim = Environment.NewLine;
-            XDocument xmlDoc = null;
+            XDocument? xmlDoc = null;
             if (File.Exists(parameterFile))
             {
                 xmlDoc = XDocument.Load(parameterFile);
             }
             //File.Delete(parameterFile);
-            XElement para = xmlDoc.Descendants("Parameters").First();
-            var subWorkers = from item in para.Elements("SubWorkers").Elements() select item;
+            XElement? para = xmlDoc?.Descendants("Parameters").First();
+            var subWorkers = from item in para?.Elements("SubWorkers").Elements() select item;
             foreach (XElement subWorker in subWorkers)
             {
                 var runCounterCandidate = subWorker.Attributes("RunCounter").FirstOrDefault();
@@ -69,11 +69,11 @@ namespace Escalator
                     var xVar = subWorkerPara.Attributes("Transport").FirstOrDefault();
                     transportByFile = xVar == null ? false : xVar.Value.ToLower() == "file" ? true : false;
                     subWorkerParaString = "\"" + subWorkerPara.Value.Replace("|", "\" \"") + "\"";
-                    // Der 1. Replace ersetzt Leerzeichen durch geschÃ¼tzte Leerzeichen (255).
+                    // Der 1. Replace ersetzt Leerzeichen durch geschützte Leerzeichen (255).
                 }
                 if (aufrufCounter < 0 && Math.Abs(aufrufCounter) >= runCounter || runCounter == aufrufCounter)
                 {
-                    string subWorkerPath = subWorker.Element("PhysicalPath").Value;
+                    string? subWorkerPath = subWorker.Element("PhysicalPath")?.Value;
                     if (subWorkerPath != null && subWorkerPath.ToLower() != "#quiet#")
                     {
                         exec(subWorkerPath, aufrufCounter, treeInfo, nodeId, subWorkerParaString, transportByFile, parameterFile);
@@ -93,7 +93,7 @@ namespace Escalator
                 delim = Environment.NewLine;
             }
             MessageBoxIcon icon = MessageBoxIcon.Information;
-            if (msg != "") // letzter (User-)Parameter wird zur Ãœberschrift.
+            if (msg != "") // letzter (User-)Parameter wird zur Überschrift.
             {
                 string header = args[args.Length - 1];
                 if (aufrufInfo.StartsWith("Das Problem ist behoben"))
@@ -127,7 +127,7 @@ namespace Escalator
         {
             if (aufrufCounter < 0)
             {
-                return "Die frÃ¼here Meldung trifft nicht mehr zu. Die ursprÃ¼ngliche Meldung war:";
+                return "Die frühere Meldung trifft nicht mehr zu. Die ursprüngliche Meldung war:";
             }
             else
             {
@@ -136,18 +136,18 @@ namespace Escalator
         }
 
         /// <summary>
-        /// Hier wird der externe Arbeitsprozess ausgefÃ¼hrt.
-        /// In den TreeParameters oder SlaveParameters (beim Konstruktor Ã¼bergeben)
+        /// Hier wird der externe Arbeitsprozess ausgeführt.
+        /// In den TreeParameters oder SlaveParameters (beim Konstruktor übergeben)
         /// enthaltene Pipes ('|') werden beim Aufruf des Workers als Leerzeichen zwischen
         /// mehreren Kommandozeilenparametern interpretiert.
         /// </summary>
-        /// <param name="workerPath">Dateipfad der auszufÃ¼hrenden Exe.</param>
-        /// <param name="callCounter">AufrufzÃ¤hler (1-n oder x*-1). Bei negativem Wert wird der Worker resettet (Fehler behoben). Der Absolutwert zeigt die letzte Eskalationsstufe.</param>
-        /// <param name="treeInfo">FÃ¼r den gesamten Tree gÃ¼ltige Parameter oder null.</param>
+        /// <param name="workerPath">Dateipfad der auszuführenden Exe.</param>
+        /// <param name="callCounter">Aufrufzähler (1-n oder x*-1). Bei negativem Wert wird der Worker resettet (Fehler behoben). Der Absolutwert zeigt die letzte Eskalationsstufe.</param>
+        /// <param name="treeInfo">Für den gesamten Tree gültige Parameter oder null.</param>
         /// <param name="nodeId">Id des Knotens, der diesen Worker besitzt.</param>
-        /// <param name="para">String mit Ãœbergabeparametern fÃ¼r den Worker</param>
-        /// <param name="transportByFile">Bei True werden die Parameter Ã¼ber eie XML-Datei Ã¼bergeben, ansonsten Ã¼ber die Kommandozeile.</param>
-        /// <param name="parameterFile">Dateipfad der XML-Datei mit den ursprÃ¼nglich an den Executor Ã¼bergebenen Parametern.</param>
+        /// <param name="para">String mit Übergabeparametern für den Worker</param>
+        /// <param name="transportByFile">Bei True werden die Parameter über eie XML-Datei übergeben, ansonsten über die Kommandozeile.</param>
+        /// <param name="parameterFile">Dateipfad der XML-Datei mit den ursprünglich an den Executor übergebenen Parametern.</param>
         private static void exec(string workerPath, int callCounter, string treeInfo, string nodeId, string para, bool transportByFile, string parameterFile)
         {
             Process externalProcess = new Process();
@@ -163,7 +163,7 @@ namespace Escalator
             }
             else
             {
-                string parameterFilePath = Path.Combine(Path.GetDirectoryName(parameterFile),
+                string parameterFilePath = Path.Combine(Path.GetDirectoryName(parameterFile) ?? "",
                   Path.GetFileNameWithoutExtension(parameterFile) + "_" + Path.GetFileNameWithoutExtension(workerPath) + ".para");
                 string[] lines = { "<?xml version=\"1.0\" encoding=\"utf-8\"?>", konvertedSlaveParameters };
                 System.IO.File.WriteAllLines(parameterFilePath, lines);
