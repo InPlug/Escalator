@@ -4,7 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
-    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <PackageId>NetEti.$(AssemblyName)</PackageId>
@@ -13,8 +13,8 @@
     <Authors>Erik Nagel</Authors>
     <Company>NetEti</Company>
     <Copyright>Copyright © $(Authors) 2016-2023</Copyright>
-    <AssemblyVersion>7.0.1.1</AssemblyVersion>
-    <FileVersion>7.0.1.1</FileVersion>
+    <AssemblyVersion>7.0.1.2</AssemblyVersion>
+    <FileVersion>7.0.1.2</FileVersion>
     <PackageTags>NetEti Vishnu Worker Escalation</PackageTags>
   </PropertyGroup>
 
@@ -23,20 +23,104 @@
   </PropertyGroup>
   <Import Project="$(ProjectDir)../../AddOn/proj/*" Condition="exists('$(ProjectDir)../../AddOn/proj')" />
 
+  <Choose>
+    <When Condition="!('$(TF_BUILD)' == 'true' Or '$(GITHUB_ACTIONS)' == 'true' Or '$(NETETI_CIB)' == 'true')">
+      <ItemGroup>
+        <Reference Include="NetEti.CommandLineAccess">
+          <HintPath>$(AssemblyRoot)/NetEti.CommandLineAccess.dll</HintPath>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <PackageReference Include="NetEti.CommandLineAccess" Version="1.0.0" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
   <ItemGroup>
-    <None Update="Plugin\ConsoleMessageBox.dll">
+    <None Update="Plugin\Escalator.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Plugin\ConsoleMessageBox.exe">
+    <None Update="Plugin\Escalator.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Plugin\ConsoleMessageBox.pdb">
+    <None Update="Plugin\Escalator.pdb">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Plugin\ConsoleMessageBox.runtimeconfig.json">
+    <None Update="Plugin\Escalator.runtimeconfig.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Plugin\ConsoleMessageBox.xml">
+    <None Update="Plugin\Escalator.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\NetEti.CommandLineAccess.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\NetEti.CommandLineAccess.pdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\NetEti.CommandLineAccess.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\NetEti.EnvAccess.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\NetEti.EnvAccess.pdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\NetEti.EnvAccess.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\NetEti.Global.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\NetEti.Global.pdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\NetEti.Global.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\NetEti.TimerMessageBox.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\NetEti.TimerMessageBox.pdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\NetEti.TimerMessageBox.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\NetEti.ZoomBox.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\NetEti.ZoomBox.pdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\NetEti.ZoomBox.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\System.Management.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\VishnuMessageBox.deps.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\VishnuMessageBox.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\VishnuMessageBox.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\VishnuMessageBox.pdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\VishnuMessageBox.runtimeconfig.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\VishnuMessageBox.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Plugin\WpfAnimatedGif.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Testfiles\Check Escalator_Exception_-3.para">

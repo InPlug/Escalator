@@ -1,5 +1,9 @@
 using System.Diagnostics;
 using System.Xml.Linq;
+using NetEti.ApplicationEnvironment;
+using System.IO;
+using System.Windows;
+using System.Text.RegularExpressions;
 
 namespace Escalator
 {
@@ -14,37 +18,34 @@ namespace Escalator
     ///
     /// 16.04.2016 Erik Nagel: Erstellt.
     /// 03.07.2021 Erik Nagel: Parameter "#quiet#" implementiert.
+    /// 04.08.2023 Erik Nagel: Im Zuge der Migration auf .Net 7 komplett überarbeitet.
     /// </remarks>
     internal static class Program
     {
         /// <summary>
-        ///  The main entry point for the application.
+        /// Haupteinstiegspunkt der Anwendung.
         /// </summary>
         [STAThread]
         static void Main(string[] args)
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            int aufrufCounter = Convert.ToInt32(args[0]);
-            string treeInfo = args[1];
-            string nodeId = args[2];
-            args = args.Skip(3).ToArray();
+            int escalationCounter = EvaluateParametersOrDie(
+                out string treeInfo, out string nodeInfo, out string position, out string parameterFile);
+
             bool paraByFile = true; // hier immer , aus dokumentatorischen Gründen werden beide Zweige gezeigt.
-            if (!paraByFile)
+            if (paraByFile)
             {
-                showMessageFromArgs(aufrufCounter, treeInfo, nodeId, args); // hier nie
+
+                CallSubWorker(escalationCounter, treeInfo, nodeInfo, position, parameterFile);
             }
             else
             {
-                showMessageFromFile(aufrufCounter, treeInfo, nodeId, args[0]);
+                CallSubWorker(escalationCounter, treeInfo, nodeInfo, position, args); // hier nie
             }
         }
 
-        private static void showMessageFromFile(int aufrufCounter, string treeInfo, string nodeId, string parameterFile)
+        private static void CallSubWorker(
+            int escalationCounter, string treeInfo, string nodeInfo, string position, string parameterFile)
         {
-            string aufrufInfo = buildAufrufInfo(aufrufCounter);
-            string msg = aufrufInfo;
-            string delim = Environment.NewLine;
             XDocument? xmlDoc = null;
             if (File.Exists(parameterFile))
             {
@@ -62,77 +63,27 @@ namespace Escalator
                     Int32.TryParse(runCounterCandidate.Value, out runCounter);
                 }
                 bool transportByFile = false;
-                string subWorkerParaString = "";
                 var subWorkerPara = subWorker.Element("Parameters");
                 if (subWorkerPara != null)
                 {
                     var xVar = subWorkerPara.Attributes("Transport").FirstOrDefault();
                     transportByFile = xVar == null ? false : xVar.Value.ToLower() == "file" ? true : false;
-                    subWorkerParaString = "\"" + subWorkerPara.Value.Replace("|", "\" \"") + "\"";
-                    // Der 1. Replace ersetzt Leerzeichen durch geschützte Leerzeichen (255).
                 }
-                if (aufrufCounter < 0 && Math.Abs(aufrufCounter) >= runCounter || runCounter == aufrufCounter)
+                if (escalationCounter < 0 && Math.Abs(escalationCounter) >= runCounter || runCounter == escalationCounter)
                 {
                     string? subWorkerPath = subWorker.Element("PhysicalPath")?.Value;
                     if (subWorkerPath != null && subWorkerPath.ToLower() != "#quiet#")
                     {
-                        exec(subWorkerPath, aufrufCounter, treeInfo, nodeId, subWorkerParaString, transportByFile, parameterFile);
+                        exec(subWorkerPath, escalationCounter, treeInfo, nodeInfo, position, subWorkerPara,
+                            transportByFile, parameterFile);
                     }
                 }
             }
         }
 
-        private static void showMessageFromArgs(int aufrufCounter, string treeInfo, string nodeId, string[] args)
+        private static void CallSubWorker(int escalationCounter, string treeInfo, string nodeInfo, string position, string[] args)
         {
-            string aufrufInfo = buildAufrufInfo(aufrufCounter);
-            string msg = aufrufInfo;
-            string delim = Environment.NewLine;
-            for (int i = 0; i < args.Length - 1; i++)
-            {
-                msg += delim + args[i];
-                delim = Environment.NewLine;
-            }
-            MessageBoxIcon icon = MessageBoxIcon.Information;
-            if (msg != "") // letzter (User-)Parameter wird zur Überschrift.
-            {
-                string header = args[args.Length - 1];
-                if (aufrufInfo.StartsWith("Das Problem ist behoben"))
-                {
-                    header = "Entwarnung";
-                }
-                if (header.ToUpper().Contains("ERROR") || header.ToUpper().Contains("FEHLER") || header.ToUpper().Contains("EXCEPTION"))
-                {
-                    icon = MessageBoxIcon.Error;
-                }
-                MessageBox.Show(msg, header, MessageBoxButtons.OK, icon);
-            }
-            else // letzter (User-)Parameter ist die Meldung
-            {
-                if (args.Length > 0)
-                {
-                    msg = args[args.Length - 1];
-                    MessageBox.Show(msg, "Info");
-                    string header = "Information";
-                    if (msg.ToUpper().Contains("ERROR") || msg.ToUpper().Contains("FEHLER") || msg.ToUpper().Contains("EXCEPTION"))
-                    {
-                        icon = MessageBoxIcon.Error;
-                        header = "Fehler";
-                    }
-                    MessageBox.Show(msg, header, MessageBoxButtons.OK, icon);
-                }
-            }
-        }
-
-        private static string buildAufrufInfo(int aufrufCounter)
-        {
-            if (aufrufCounter < 0)
-            {
-                return "Die frühere Meldung trifft nicht mehr zu. Die ursprüngliche Meldung war:";
-            }
-            else
-            {
-                return aufrufCounter.ToString() + ". Achtung";
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -142,35 +93,101 @@ namespace Escalator
         /// mehreren Kommandozeilenparametern interpretiert.
         /// </summary>
         /// <param name="workerPath">Dateipfad der auszuführenden Exe.</param>
-        /// <param name="callCounter">Aufrufzähler (1-n oder x*-1). Bei negativem Wert wird der Worker resettet (Fehler behoben). Der Absolutwert zeigt die letzte Eskalationsstufe.</param>
+        /// <param name="escalationCounter">Aufrufzähler (1 bis n oder -n bis -1).
+        /// Bei negativem Wert wird der Worker resettet (Fehler behoben).
+        /// Der Absolutwert zeigt die letzte Eskalationsstufe.</param>
         /// <param name="treeInfo">Für den gesamten Tree gültige Parameter oder null.</param>
-        /// <param name="nodeId">Id des Knotens, der diesen Worker besitzt.</param>
+        /// <param name="nodeInfo">Id des Knotens, der diesen Worker besitzt.</param>
+        /// <param name="position">Position des übergeordneten Controls.</param>
         /// <param name="para">String mit Übergabeparametern für den Worker</param>
-        /// <param name="transportByFile">Bei True werden die Parameter über eie XML-Datei übergeben, ansonsten über die Kommandozeile.</param>
-        /// <param name="parameterFile">Dateipfad der XML-Datei mit den ursprünglich an den Executor übergebenen Parametern.</param>
-        private static void exec(string workerPath, int callCounter, string treeInfo, string nodeId, string para, bool transportByFile, string parameterFile)
+        /// <param name="transportByFile">Bei True werden die Parameter über eie XML-Datei übergeben,
+        /// ansonsten über die Kommandozeile.</param>
+        /// <param name="parameterFile">Dateipfad der XML-Datei mit den ursprünglich an den Executor
+        /// übergebenen Parametern.</param>
+        private static void exec(
+            string workerPath, int escalationCounter, string treeInfo, string nodeInfo,
+            string position, XElement? para, bool transportByFile, string parameterFile)
         {
             Process externalProcess = new Process();
-            string countString = callCounter.ToString();
-            string konvertedSlaveParameters = para;
+            string countString = "EscalationCounter=" + escalationCounter.ToString();
             externalProcess.StartInfo.FileName = workerPath;
-            externalProcess.StartInfo.Arguments = countString
-                                     + " \"" + treeInfo.Replace("|", "\" \"")
-                                     + "\" \"" + nodeId;
+            externalProcess.StartInfo.Arguments = countString + " " + treeInfo + " " + nodeInfo + " " + position;
+            string konvertedSlaveParameters;
             if (!transportByFile)
             {
-                externalProcess.StartInfo.Arguments += "\" " + konvertedSlaveParameters.Replace("|", "\" \"");
+                konvertedSlaveParameters = para?.Value ?? "";
+            }
+            else
+            {
+                konvertedSlaveParameters = (para?.ToString() ?? "").Replace('\xA0', ' ').Replace('\x09', ' ');
+            }
+            if (!transportByFile)
+            {
+                externalProcess.StartInfo.Arguments += " " + konvertedSlaveParameters;
             }
             else
             {
                 string parameterFilePath = Path.Combine(Path.GetDirectoryName(parameterFile) ?? "",
                   Path.GetFileNameWithoutExtension(parameterFile) + "_" + Path.GetFileNameWithoutExtension(workerPath) + ".para");
-                string[] lines = { "<?xml version=\"1.0\" encoding=\"utf-8\"?>", konvertedSlaveParameters };
+                string[] lines = { "<?xml version=\"1.0\" encoding=\"utf-8\"?>",
+                                    konvertedSlaveParameters
+                                 };
                 System.IO.File.WriteAllLines(parameterFilePath, lines);
-                externalProcess.StartInfo.Arguments += "\" " + parameterFilePath.Replace("|", "\" \"");
+                externalProcess.StartInfo.Arguments += " -ParameterFile=\"" + parameterFilePath +"\"";
             }
+            externalProcess.StartInfo.Arguments
+                = Regex.Replace(externalProcess.StartInfo.Arguments,
+                  "\\s+(?=([^\"]*\"[^\"]*\")*[^\"]*$)", " ", RegexOptions.IgnoreCase).Trim();
             externalProcess.Start();
         }
 
+        private static int EvaluateParametersOrDie(
+            out string treeInfo, out string nodeInfo, out string position, out string parameterFile)
+        {
+            CommandLineAccess commandLineAccess = new();
+
+            string? tmpStr = commandLineAccess.GetStringValue("EscalationCounter", "0");
+            if (!Int32.TryParse(tmpStr, out int escalationCounter))
+                Die<string>("Es muss ein numerischer EscalationCounter übergeben werden.", commandLineAccess.CommandLine);
+
+            treeInfo = commandLineAccess.GetStringValue("Vishnu.TreeInfo", "") ?? string.Empty;
+            if (!String.IsNullOrEmpty(treeInfo))
+            {
+                treeInfo = "-Vishnu.TreeInfo=" + "\"" + treeInfo + "\"";
+            }
+
+            nodeInfo = commandLineAccess.GetStringValue("Vishnu.NodeInfo", "") ?? string.Empty;
+            if (!String.IsNullOrEmpty(nodeInfo))
+            {
+                nodeInfo = "-Vishnu.NodeInfo=" + "\"" + nodeInfo + "\"";
+            }
+
+            position = "-Position=" + "\"" + (commandLineAccess.GetStringValue("Position", "") ?? "") + "\"";
+
+            parameterFile = commandLineAccess.GetStringValue("ParameterFile", "") ?? string.Empty;
+
+            return escalationCounter;
+        }
+
+        private static T Die<T>(string? message, string? commandLine = null)
+        {
+            string usage = "Syntax:"
+                + Environment.NewLine
+                + "\t-EscalationCounter={-n;+n} (negativ: Ursache behoben)"
+                + Environment.NewLine
+                + "\t[-ParameterFile=<Pfad zur Datei mit Parametern>]"
+                + Environment.NewLine
+                + "\t[-Vishnu.TreeInfo=<wird von Vishnu gesetzt>]"
+                + Environment.NewLine
+                + "\t[-Vishnu.NodeInfo=<wird von Vishnu gesetzt>]"
+                + Environment.NewLine
+                + "\t[-Position=<X;Y>]";
+            if (commandLine != null)
+            {
+                usage = "Kommandozeile: " + commandLine + Environment.NewLine + usage;
+            }
+            MessageBox.Show(message + Environment.NewLine + usage);
+            throw new ArgumentException(message + Environment.NewLine + usage);
+        }
     }
 }

@@ -2,7 +2,7 @@
   "profiles": {
     "Escalator": {
       "commandName": "Project",
-      "commandLineArgs": "1 Blabluff blubber \"Testfiles/Check Escalator_Exception_0.para\""
+      "commandLineArgs": "-EscalationCounter=3 -Vishnu.TreeInfo=\"Blabluff\" -Vishnu.NodeInfo=\"blubber\" -Position=100;200 -ParameterFile=\"Testfiles/Check Escalator_Exception_0.para\""
     }
   }
 }
