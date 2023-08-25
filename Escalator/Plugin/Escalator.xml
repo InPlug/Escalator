@@ -16,6 +16,7 @@
             
              16.04.2016 Erik Nagel: Erstellt.
              03.07.2021 Erik Nagel: Parameter "#quiet#" implementiert.
+             04.08.2023 Erik Nagel: Im Zuge der Migration auf .Net 7 komplett überarbeitet.
              </remarks>
         </member>
         <member name="M:Escalator.Program.Main(System.String[])">

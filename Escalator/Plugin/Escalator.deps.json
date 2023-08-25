@@ -1,0 +1,78 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v7.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v7.0": {
+      "Escalator/1.0.0": {
+        "dependencies": {
+          "NetEti.CommandLineAccess": "7.0.1.2"
+        },
+        "runtime": {
+          "Escalator.dll": {}
+        }
+      },
+      "NetEti.CommandLineAccess/7.0.1.2": {
+        "runtime": {
+          "NetEti.CommandLineAccess.dll": {
+            "assemblyVersion": "7.0.1.2",
+            "fileVersion": "7.0.1.2"
+          }
+        }
+      },
+      "NetEti.Global/7.0.1.1": {
+        "runtime": {
+          "NetEti.Global.dll": {
+            "assemblyVersion": "7.0.1.1",
+            "fileVersion": "7.0.1.1"
+          }
+        }
+      },
+      "NetEti.EnvAccess/7.0.1.1": {
+        "runtime": {
+          "NetEti.EnvAccess.dll": {
+            "assemblyVersion": "7.0.1.1",
+            "fileVersion": "7.0.1.1"
+          }
+        }
+      },
+      "System.Management/7.0.0.1": {
+        "runtime": {
+          "System.Management.dll": {
+            "assemblyVersion": "7.0.0.1",
+            "fileVersion": "7.0.523.17405"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Escalator/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "NetEti.CommandLineAccess/7.0.1.2": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "NetEti.Global/7.0.1.1": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "NetEti.EnvAccess/7.0.1.1": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "System.Management/7.0.0.1": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

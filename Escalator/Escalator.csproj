@@ -13,8 +13,8 @@
     <Authors>Erik Nagel</Authors>
     <Company>NetEti</Company>
     <Copyright>Copyright © $(Authors) 2016-2023</Copyright>
-    <AssemblyVersion>7.0.1.2</AssemblyVersion>
-    <FileVersion>7.0.1.2</FileVersion>
+    <AssemblyVersion>7.0.1.3</AssemblyVersion>
+    <FileVersion>7.0.1.3</FileVersion>
     <PackageTags>NetEti Vishnu Worker Escalation</PackageTags>
   </PropertyGroup>
 
@@ -39,6 +39,9 @@
   </Choose>
 
   <ItemGroup>
+    <None Update="Plugin\Escalator.deps.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Plugin\Escalator.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
