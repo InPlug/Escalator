@@ -143,4 +143,16 @@
     </None>
   </ItemGroup>
 
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="if not exist &quot;$(ProjectDir)Plugin&quot; mkdir &quot;$(ProjectDir)Plugin&quot;" />
+    <!-- Exec Command="del /Q &quot;$(ProjectDir)Plugin\*.*&quot;" /-->
+    <Exec Command="if not exist &quot;$(TargetDir)Plugin&quot; mkdir &quot;$(TargetDir)Plugin&quot;" />
+    <!-- Exec Command="del /Q &quot;$(TargetDir)Plugin\*.*&quot;" /-->
+  </Target>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy /y &quot;$(TargetDir)Escalator.*&quot; &quot;$(ProjectDir)Plugin\*.*&quot;" />
+    <Exec Command="copy /y &quot;$(TargetDir)Escalator.*&quot; &quot;$(TargetDir)Plugin\*.*&quot;" />
+  </Target>
+
 </Project>
