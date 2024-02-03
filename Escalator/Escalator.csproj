@@ -12,7 +12,7 @@
     <Description>$(AssemblyName) - Vishnu-Worker: ruft je nach Eskalationsstufe weitere Worker</Description>
     <Authors>Erik Nagel</Authors>
     <Company>NetEti</Company>
-    <Copyright>Copyright © $(Authors) 2016-2023</Copyright>
+    <Copyright>Copyright © $(Authors) 2016-$([System.DateTime]::Now.Year)</Copyright>
     <AssemblyVersion>8.0.0.0</AssemblyVersion>
     <FileVersion>8.0.0.0</FileVersion>
     <PackageTags>NetEti Vishnu Worker Escalation</PackageTags>

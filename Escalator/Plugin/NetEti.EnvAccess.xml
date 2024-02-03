@@ -187,5 +187,11 @@
             </summary>
             <returns>Die höchste installierte Major-Version des .Net-Frameworks als Integer</returns>
         </member>
+        <member name="M:NetEti.ApplicationEnvironment.EnvAccess.IsFrameworkAssembly">
+            <summary>
+            Liefert true, wenn das Programm ein .Net-Framework-Programm ist.
+            </summary>
+            <returns>True, wenn das Programm ein .Net-Framework-Programm ist</returns>
+        </member>
     </members>
 </doc>
