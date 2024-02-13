@@ -18,6 +18,8 @@
              23.07.2013 Erik Nagel: erstellt
              26.07.2023 Erik Nagel: Windows.DragMove bei Erhaltung der Reaktionsfähigkeit anderer Controls (Buttons)
                                     implementiert (DelayedDragMove).
+             13.02.2024 Erik Nagel: DelayedDragMove nur bei nicht sichtbaren Scrollbars.
+             13.02.2024 Erik Nagel: DelayedDragMove ganz entfernt - führte zu nicht über die Maus scrollbaren UserControls.
              </remarks>
         </member>
         <member name="F:NetEti.CustomControls.ZoomBox.HorizontalScrollBarVisibilityProperty">
@@ -109,7 +111,7 @@
             <summary>
             Rechte Maustaste: 
               zusammen mit Strg: verkleinert alles, sodass alles im Fenster sichtbar ist.
-              zusammen mit Umschalt: setzt alles auf Anfang - kein Zoom, Position links oben.
+              zusammen mit Shift: setzt alles auf Anfang - kein Zoom, Position links oben.
             </summary>
             <param name="sender">Element, in dem das Event zuerst auftritt.</param>
             <param name="e">Weitergehende Informationen zum Event.</param>
