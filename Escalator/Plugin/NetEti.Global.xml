@@ -457,6 +457,17 @@
             </para>
             </returns>
         </member>
+        <member name="M:NetEti.Globals.Global.DirectoryCopy(System.String,System.String,System.Boolean)">
+            <summary>
+            Kopiert ein Verzeichnis inklusive aller darin enthaltenen Dateien.
+            Wenn der Parameter "copySubDirs" auf true steht, werden auch alle
+            im Verzeichnis enthaltenen Unterverzeichnisse rekursiv mit kopiert.
+            </summary>
+            <param name="sourceDir">Das zu kopierende Verzeichnis.</param>
+            <param name="destDir">Der Ziel-Pfad.</param>
+            <param name="copySubDirs">Bei true werden auch Unterverzeichnisse rekursiv kopiert.</param>
+            <exception cref="T:System.IO.DirectoryNotFoundException">Mögliche DirectoryNotFoundException.</exception>
+        </member>
         <member name="T:NetEti.Globals.IGetStringValue">
              <summary>
              Lesen von Values (string) über Keys (string).
