@@ -20,6 +20,7 @@
 
   <PropertyGroup>
     <AssemblyRoot>$(ProjectDir)../../../ReadyBin/Assemblies</AssemblyRoot>
+    <UserAssemblyRoot>$(ProjectDir)../../../ReadyBin/UserAssemblies</UserAssemblyRoot>
   </PropertyGroup>
   <Import Project="$(ProjectDir)../../AddOn/proj/*" Condition="exists('$(ProjectDir)../../AddOn/proj')" />
 
@@ -39,93 +40,6 @@
   </Choose>
 
   <ItemGroup>
-    <None Update="Plugin\Escalator.deps.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\Escalator.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\Escalator.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\Escalator.pdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\Escalator.runtimeconfig.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\Escalator.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\NetEti.CommandLineAccess.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\NetEti.CommandLineAccess.pdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\NetEti.CommandLineAccess.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\NetEti.EnvAccess.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\NetEti.EnvAccess.pdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\NetEti.EnvAccess.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\NetEti.Global.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\NetEti.Global.pdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\NetEti.Global.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\NetEti.TimerMessageBox.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\NetEti.TimerMessageBox.pdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\NetEti.TimerMessageBox.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\NetEti.ZoomBox.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\NetEti.ZoomBox.pdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\NetEti.ZoomBox.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\System.Management.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\VishnuMessageBox.deps.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\VishnuMessageBox.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\VishnuMessageBox.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\VishnuMessageBox.pdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\VishnuMessageBox.runtimeconfig.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\VishnuMessageBox.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Plugin\WpfAnimatedGif.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Testfiles\Check Escalator_Exception_-3.para">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -144,15 +58,20 @@
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="if not exist &quot;$(ProjectDir)Plugin&quot; mkdir &quot;$(ProjectDir)Plugin&quot;" />
-    <!-- Exec Command="del /Q &quot;$(ProjectDir)Plugin\*.*&quot;" /-->
     <Exec Command="if not exist &quot;$(TargetDir)Plugin&quot; mkdir &quot;$(TargetDir)Plugin&quot;" />
     <!-- Exec Command="del /Q &quot;$(TargetDir)Plugin\*.*&quot;" /-->
   </Target>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /y &quot;$(TargetDir)Escalator.*&quot; &quot;$(ProjectDir)Plugin\*.*&quot;" />
     <Exec Command="copy /y &quot;$(TargetDir)Escalator.*&quot; &quot;$(TargetDir)Plugin\*.*&quot;" />
+    <Exec Command="copy /y &quot;$(TargetDir)NetEti.*&quot; &quot;$(TargetDir)Plugin\*.*&quot;" />
+    <Exec Command="copy /y &quot;$(AssemblyRoot)\NetEti.TimerMessageBox.dll&quot; &quot;$(TargetDir)Plugin\*.*&quot;" />
+    <Exec Command="copy /y &quot;$(AssemblyRoot)\NetEti.ZoomBox.dll&quot; &quot;$(TargetDir)Plugin\*.*&quot;" />
+    <Exec Command="copy /y &quot;$(AssemblyRoot)\System.Management.dll&quot; &quot;$(TargetDir)Plugin\*.*&quot;" />
+    <Exec Command="copy /y &quot;$(AssemblyRoot)\WpfAnimatedGif.dll&quot; &quot;$(TargetDir)Plugin\*.*&quot;" />
+    <Exec Command="copy /y &quot;$(UserAssemblyRoot)\VishnuMessageBox.dll&quot; &quot;$(TargetDir)Plugin\*.*&quot;" />
+    <Exec Command="copy /y &quot;$(UserAssemblyRoot)\VishnuMessageBox.exe&quot; &quot;$(TargetDir)Plugin\*.*&quot;" />
+    <Exec Command="copy /y &quot;$(UserAssemblyRoot)\VishnuMessageBox.runtimeconfig.json&quot; &quot;$(TargetDir)Plugin\*.*&quot;" />
   </Target>
 
 </Project>
