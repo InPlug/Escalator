@@ -13,8 +13,8 @@
     <Authors>Erik Nagel</Authors>
     <Company>NetEti</Company>
     <Copyright>Copyright © $(Authors) 2016-$([System.DateTime]::Now.Year)</Copyright>
-    <AssemblyVersion>8.0.0.0</AssemblyVersion>
-    <FileVersion>8.0.0.0</FileVersion>
+    <AssemblyVersion>8.4.0.0</AssemblyVersion>
+    <FileVersion>8.4.0.0</FileVersion>
     <PackageTags>NetEti Vishnu Worker Escalation</PackageTags>
   </PropertyGroup>
 
@@ -30,29 +30,76 @@
         <Reference Include="NetEti.CommandLineAccess">
           <HintPath>$(AssemblyRoot)/NetEti.CommandLineAccess.dll</HintPath>
         </Reference>
+        <Reference Include="NetEti.CommandLineAccess">
+          <HintPath>$(AssemblyRoot)/NetEti.ObjectSerializer.dll</HintPath>
+        </Reference>
+		    <Reference Include="Vishnu.Interchange">
+		      <HintPath>$(AssemblyRoot)/Vishnu.Interchange.dll</HintPath>
+		    </Reference>
       </ItemGroup>
     </When>
     <Otherwise>
       <ItemGroup>
         <PackageReference Include="NetEti.CommandLineAccess" Version="1.0.0" />
+        <PackageReference Include="NetEti.ObjectSerializer" Version="1.0.0" />
+		    <PackageReference Include="NetEti.Vishnu.Interchange" Version="1.0.0" />
       </ItemGroup>
     </Otherwise>
   </Choose>
 
   <ItemGroup>
+    <None Update="Testfiles\Check Escalator_Exception.para">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Testfiles\Check Escalator_Exception_-3.para">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Testfiles\Check Escalator_Exception_-3_json.para">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Testfiles\Check Escalator_Exception_-3_xml.para">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Testfiles\Check Escalator_Exception_0.para">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Testfiles\Check Escalator_Exception_0_json.para">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Testfiles\Check Escalator_Exception_0_xml.para">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Testfiles\Check Escalator_Exception_1.para">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Testfiles\Check Escalator_Exception_1_json.para">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Testfiles\Check Escalator_Exception_1_xml.para">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Testfiles\Check Escalator_Exception_2.para">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Testfiles\Check Escalator_Exception_2_json.para">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Testfiles\Check Escalator_Exception_2_xml.para">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Testfiles\Check Escalator_Exception_3.para">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Testfiles\Check Escalator_Exception_3_json.para">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Testfiles\Check Escalator_Exception_3_xml.para">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Testfiles\Check Escalator_Exception_json.para">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Testfiles\Check Escalator_Exception_xml.para">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

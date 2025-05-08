@@ -1,14 +1,15 @@
 using System.Diagnostics;
-using System.Xml.Linq;
 using NetEti.ApplicationEnvironment;
 using System.IO;
 using System.Windows;
 using System.Text.RegularExpressions;
+using NetEti.ObjectSerializer;
+using Vishnu.Interchange;
 
 namespace Escalator
 {
     /// <summary>
-    /// Ruft weitere Worker (Exen) mit Kommandozeilen-Parametern auf.
+    /// Ruft weitere Worker (EXE) mit Kommandozeilen-Parametern auf.
     /// Berücksichtigt je nach Aufruf-Zähler unterschiedliche Worker
     /// (Eskalationsstufen), z.B. ConsoleMessageBox, MicroMailer, ...
     /// </summary>
@@ -19,6 +20,7 @@ namespace Escalator
     /// 16.04.2016 Erik Nagel: Erstellt.
     /// 03.07.2021 Erik Nagel: Parameter "#quiet#" implementiert.
     /// 04.08.2023 Erik Nagel: Im Zuge der Migration auf .Net 7 komplett überarbeitet.
+    /// 26.04.2025 Erik Nagel: Unterstützung für Json implementiert.
     /// </remarks>
     internal static class Program
     {
@@ -28,62 +30,30 @@ namespace Escalator
         [STAThread]
         static void Main(string[] args)
         {
-            int escalationCounter = EvaluateParametersOrDie(
-                out string treeInfo, out string nodeInfo, out string position, out string parameterFile);
-
-            bool paraByFile = true; // hier immer , aus dokumentatorischen Gründen werden beide Zweige gezeigt.
-            if (paraByFile)
-            {
-
-                CallSubWorker(escalationCounter, treeInfo, nodeInfo, position, parameterFile);
-            }
-            else
-            {
-                CallSubWorker(escalationCounter, treeInfo, nodeInfo, position, args); // hier nie
-            }
+            int escalationCounter = EvaluateUnstructuredParametersOrDie(out string treeInfo,
+                out string nodeInfo, out string position, out string parameterFile, out string handle);
+            StructuredParameters subWorkersPara
+                = EvaluateStructuredParametersOrDie(parameterFile);
+            CallSubWorkers(treeInfo, nodeInfo, position, subWorkersPara, escalationCounter, handle);
         }
 
-        private static void CallSubWorker(
-            int escalationCounter, string treeInfo, string nodeInfo, string position, string parameterFile)
+        private static void CallSubWorkers(string treeInfo, string nodeInfo, string position,
+            StructuredParameters subWorkersPara, int escalationCounter, string handle)
         {
-            XDocument? xmlDoc = null;
-            if (File.Exists(parameterFile))
+            foreach (SubWorker subWorker in subWorkersPara.SubWorkers.SubWorkersList)
             {
-                xmlDoc = XDocument.Load(parameterFile);
-            }
-            //File.Delete(parameterFile);
-            XElement? para = xmlDoc?.Descendants("Parameters").First();
-            var subWorkers = from item in para?.Elements("SubWorkers").Elements() select item;
-            foreach (XElement subWorker in subWorkers)
-            {
-                var runCounterCandidate = subWorker.Attributes("RunCounter").FirstOrDefault();
-                int runCounter = 0;
-                if (runCounterCandidate != null)
-                {
-                    Int32.TryParse(runCounterCandidate.Value, out runCounter);
-                }
-                bool transportByFile = false;
-                var subWorkerPara = subWorker.Element("Parameters");
-                if (subWorkerPara != null)
-                {
-                    var xVar = subWorkerPara.Attributes("Transport").FirstOrDefault();
-                    transportByFile = xVar == null ? false : xVar.Value.ToLower() == "file" ? true : false;
-                }
+                int runCounter = Convert.ToInt32(subWorker.RunCounter);
                 if (escalationCounter < 0 && Math.Abs(escalationCounter) >= runCounter || runCounter == escalationCounter)
                 {
-                    string? subWorkerPath = subWorker.Element("PhysicalPath")?.Value;
+                    string? subWorkerPath = subWorker.PhysicalPath;
+
                     if (subWorkerPath != null && subWorkerPath.ToLower() != "#quiet#")
                     {
-                        exec(subWorkerPath, escalationCounter, treeInfo, nodeInfo, position, subWorkerPara,
-                            transportByFile, parameterFile);
+                        subWorkerPath = VishnuAssemblyLoader.GetResolvedAssemblyPath(subWorkerPath, handle);
+                        ExecuteWorker(subWorkerPath, escalationCounter, treeInfo, nodeInfo, position, subWorker.Parameters);
                     }
                 }
             }
-        }
-
-        private static void CallSubWorker(int escalationCounter, string treeInfo, string nodeInfo, string position, string[] args)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -94,62 +64,50 @@ namespace Escalator
         /// </summary>
         /// <param name="workerPath">Dateipfad der auszuführenden Exe.</param>
         /// <param name="escalationCounter">Aufrufzähler (1 bis n oder -n bis -1).
-        /// Bei negativem Wert wird der Worker resettet (Fehler behoben).
-        /// Der Absolutwert zeigt die letzte Eskalationsstufe.</param>
+        /// Bei negativem Wert wird der Worker resettet (Fehler behoben).</param>
         /// <param name="treeInfo">Für den gesamten Tree gültige Parameter oder null.</param>
         /// <param name="nodeInfo">Id des Knotens, der diesen Worker besitzt.</param>
         /// <param name="position">Position des übergeordneten Controls.</param>
-        /// <param name="para">String mit Übergabeparametern für den Worker</param>
-        /// <param name="transportByFile">Bei True werden die Parameter über eie XML-Datei übergeben,
-        /// ansonsten über die Kommandozeile.</param>
-        /// <param name="parameterFile">Dateipfad der XML-Datei mit den ursprünglich an den Executor
-        /// übergebenen Parametern.</param>
-        private static void exec(
+        /// <param name="parameters">String mit Übergabeparametern für den Worker oder null.</param>
+        private static void ExecuteWorker(
             string workerPath, int escalationCounter, string treeInfo, string nodeInfo,
-            string position, XElement? para, bool transportByFile, string parameterFile)
+            string position, string? parameters)
         {
-            Process externalProcess = new Process();
             string countString = "EscalationCounter=" + escalationCounter.ToString();
+            string konvertedSlaveParameters = String.Empty;
+            if (parameters != null)
+            {
+                konvertedSlaveParameters = parameters.Replace('\xA0', ' ').Replace('\x09', ' ');
+            }
+            Process externalProcess = new Process();
             externalProcess.StartInfo.FileName = workerPath;
-            externalProcess.StartInfo.Arguments = countString + " " + treeInfo + " " + nodeInfo + " " + position;
-            string konvertedSlaveParameters;
-            if (!transportByFile)
-            {
-                konvertedSlaveParameters = para?.Value ?? "";
-            }
-            else
-            {
-                konvertedSlaveParameters = (para?.ToString() ?? "").Replace('\xA0', ' ').Replace('\x09', ' ');
-            }
-            if (!transportByFile)
-            {
-                externalProcess.StartInfo.Arguments += " " + konvertedSlaveParameters;
-            }
-            else
-            {
-                string parameterFilePath = Path.Combine(Path.GetDirectoryName(parameterFile) ?? "",
-                  Path.GetFileNameWithoutExtension(parameterFile) + "_" + Path.GetFileNameWithoutExtension(workerPath) + ".para");
-                string[] lines = { "<?xml version=\"1.0\" encoding=\"utf-8\"?>",
-                                    konvertedSlaveParameters
-                                 };
-                System.IO.File.WriteAllLines(parameterFilePath, lines);
-                externalProcess.StartInfo.Arguments += " -ParameterFile=\"" + parameterFilePath +"\"";
-            }
+            externalProcess.StartInfo.Arguments = countString + " " + treeInfo + " "
+                + nodeInfo + " " + position + " " + konvertedSlaveParameters;
             externalProcess.StartInfo.Arguments
                 = Regex.Replace(externalProcess.StartInfo.Arguments,
                   "\\s+(?=([^\"]*\"[^\"]*\")*[^\"]*$)", " ", RegexOptions.IgnoreCase).Trim();
             externalProcess.Start();
         }
 
-        private static int EvaluateParametersOrDie(
-            out string treeInfo, out string nodeInfo, out string position, out string parameterFile)
+        private static int EvaluateUnstructuredParametersOrDie(
+            out string treeInfo, out string nodeInfo, out string position, out string parameterFile, out string handle)
         {
             CommandLineAccess commandLineAccess = new();
 
-            string? tmpStr = commandLineAccess.GetStringValue("EscalationCounter", "0");
-            if (!Int32.TryParse(tmpStr, out int escalationCounter))
-                Die<string>("Es muss ein numerischer EscalationCounter übergeben werden.", commandLineAccess.CommandLine);
+            string? tmpStr = commandLineAccess.GetStringValue("DebugMode", "false");
+            if (tmpStr?.ToLower().Equals("true") == true)
+            {
+                if (!Debugger.IsAttached) Debugger.Launch();
+            }
 
+            tmpStr = commandLineAccess.GetStringValue("EscalationCounter", "0");
+            if (!Int32.TryParse(tmpStr, out int escalationCounter))
+            {
+                string message = "Es muss ein numerischer EscalationCounter übergeben werden."
+                    + Environment.NewLine + Syntax();
+                MessageBox.Show(message);
+                throw new ArgumentException(message);
+            }
             treeInfo = commandLineAccess.GetStringValue("Vishnu.TreeInfo", "") ?? string.Empty;
             if (!String.IsNullOrEmpty(treeInfo))
             {
@@ -161,17 +119,53 @@ namespace Escalator
             {
                 nodeInfo = "-Vishnu.NodeInfo=" + "\"" + nodeInfo + "\"";
             }
-
             position = "-Position=" + "\"" + (commandLineAccess.GetStringValue("Position", "") ?? "") + "\"";
-
             parameterFile = commandLineAccess.GetStringValue("ParameterFile", "") ?? string.Empty;
+            handle = commandLineAccess.GetStringValue("Handle", "") ?? string.Empty;
 
             return escalationCounter;
         }
 
-        private static T Die<T>(string? message, string? commandLine = null)
+        private static StructuredParameters EvaluateStructuredParametersOrDie(string parameterFile)
         {
-            string usage = "Syntax:"
+            StructuredParameters? subWorkersPara = null;
+            if (File.Exists(parameterFile))
+            {
+                string parameterString = File.ReadAllText(parameterFile);
+                if (parameterString.Trim().StartsWith('{'))
+                {
+                    subWorkersPara =
+                        SerializationUtility.DeserializeFromJson<StructuredParameters>(parameterString);
+                }
+                else
+                {
+                    if (parameterString.Trim().StartsWith('<'))
+                    {
+                        subWorkersPara =
+                            SerializationUtility.DeserializeFromXml<StructuredParameters>(parameterString);
+                    }
+                    else
+                    {
+                        string message =
+                            "Die SubWorker-Parameter haben kein bekanntes Format. Unterstützt werden Xml und Json."
+                            + Environment.NewLine + Syntax();
+                        MessageBox.Show(message);
+                        throw new ArgumentException(message);
+                    }
+                }
+            }
+            if (subWorkersPara == null)
+            {
+                string message = "Die SubWorker-Parameter sind null." + Environment.NewLine + Syntax();
+                MessageBox.Show(message);
+                throw new ArgumentException(message);
+            }
+            return subWorkersPara;
+        }
+
+        private static string Syntax()
+        {
+            string message = "Syntax:"
                 + Environment.NewLine
                 + "\t-EscalationCounter={-n;+n} (negativ: Ursache behoben)"
                 + Environment.NewLine
@@ -182,12 +176,7 @@ namespace Escalator
                 + "\t[-Vishnu.NodeInfo=<wird von Vishnu gesetzt>]"
                 + Environment.NewLine
                 + "\t[-Position=<X;Y>]";
-            if (commandLine != null)
-            {
-                usage = "Kommandozeile: " + commandLine + Environment.NewLine + usage;
-            }
-            MessageBox.Show(message + Environment.NewLine + usage);
-            throw new ArgumentException(message + Environment.NewLine + usage);
+            return message;
         }
     }
 }
