@@ -97,7 +97,8 @@ namespace Escalator
             string? tmpStr = commandLineAccess.GetStringValue("DebugMode", "false");
             if (tmpStr?.ToLower().Equals("true") == true)
             {
-                if (!Debugger.IsAttached) Debugger.Launch();
+                // DEBUG: zum Debuggen hier aktivieren.
+                // if (!Debugger.IsAttached) Debugger.Launch();
             }
 
             tmpStr = commandLineAccess.GetStringValue("EscalationCounter", "0");
