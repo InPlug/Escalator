@@ -1,0 +1,17 @@
+{
+                  "@Transport": "File",
+                  "SubWorkers": {
+                    "SubWorker": [
+                      {
+                        "@RunCounter": "1",
+                        "PhysicalPath": "VishnuMessageBox.exe",
+                        "Parameters": "-Message=\"Stufe 1 (Run 1) 07.05.2025 15.04.05: MAUSBAER6 Exception von DialogChecker in Check Escalator#Logical: null Test-Exception\" -Caption=\"Fehler\" -MessageNewLine=#"
+                      },
+                      {
+                        "@RunCounter": "2",
+                        "PhysicalPath": "VishnuMessageBox.exe",
+                        "Parameters": "-Message=\"Stufe 2 (Run 2) 07.05.2025 15.04.05: MAUSBAER6 Exception von DialogChecker in Check Escalator#Logical: null Test-Exception\" -Caption=\"Fehler\" -MessageNewLine=#"
+                      }
+                    ]
+                  }
+                }
